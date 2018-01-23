@@ -1,0 +1,15 @@
+Flask==0.12.2
+Flask-Babel==0.11.2
+Flask-WTF==0.14.2
+Flask-SQLAlchemy==2.3.2
+Flask-Migrate==2.1.1
+Flask-Login==0.4.1
+SQLAlchemy-Utils==0.32.21
+
+psycopg2==2.7.3.2
+colander==1.4
+celery[redis]==4.1.0
+dateutils==0.6.6
+requests==2.18.4
+six==1.11.0
+gunicorn==19.7.1

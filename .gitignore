@@ -1,0 +1,11 @@
+.venv
+.idea
+*.pyc
+*.db
+
+# Translations
+*.mo
+*.pot
+
+wownder.egg-info/
+bnet-devel.json
