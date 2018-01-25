@@ -5,7 +5,7 @@ import requests
 from functools import wraps
 
 from flask import abort, session, request, redirect, jsonify, current_app as app
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, current_user
 from werkzeug.exceptions import Unauthorized
 
 from wownder import db
@@ -13,8 +13,16 @@ from wownder.actions import update_user, update_chars
 from wownder import tasks
 
 
-AUTH_URI = 'https://us.battle.net/oauth/authorize'
-TOKEN_URI = 'https://us.battle.net/oauth/token'
+ENDPOINTS = {
+    'US': {
+        'AUTH_URI': 'https://us.battle.net/oauth/authorize',
+        'TOKEN_URI': 'https://us.battle.net/oauth/token'
+    },
+    'EU': {
+        'AUTH_URI': 'https://eu.battle.net/oauth/authorize',
+        'TOKEN_URI': 'https://eu.battle.net/oauth/token'
+    }
+}
 
 
 def _gen_state(n=10):
@@ -22,32 +30,34 @@ def _gen_state(n=10):
     return ''.join(random.choice(_alpha) for _ in range(n))
 
 
-def login_url(state=None):
-    _state = state if state else _gen_state(11)
-    _url = (AUTH_URI +
-            "?client_id=" + app.config['BN_CLIENT_ID'] + "&"
+def _get_path():
+    _state = _gen_state(11)
+    session['state'] = _state
+    path = ("?client_id=" + app.config['BN_CLIENT_ID'] + "&"
             "response_type=code&"
             "redirect_uri=" + request.host_url + "oauth/callback&"
             "scope=wow.profile&"
             "state={}").format(_state)
-    return _url
+    return path
 
 
-def _auth():
-    _state = _gen_state(11)
-    session['state'] = _state
-    return redirect(login_url(_state))
+def us_login_url():
+    return ENDPOINTS.get('US').get('AUTH_URI') + _get_path()
+
+
+def eu_login_url():
+    return ENDPOINTS.get('EU').get('AUTH_URI') + _get_path()
 
 
 def requires_bn_login_api(func):
     @wraps(func)
     def func_wrapper(*args, **kwargs):
         if not current_user.is_authenticated:
-            return jsonify(dict(url=login_url())), 401
+            return jsonify(), 401
         try:
             return func(*args, **kwargs)
         except Unauthorized:
-            return jsonify(dict(url=login_url())), 401
+            return jsonify(), 401
     return func_wrapper
 
 
@@ -67,7 +77,7 @@ def handle_callback():
         'client_secret': app.config['BN_SECRET']
     }
 
-    _resp = requests.post(TOKEN_URI, data=_payload)
+    _resp = requests.post(ENDPOINTS.get(session.get('login_region')).get('TOKEN_URI'), data=_payload)
     if _resp.status_code != 200:
         # TODO: Log _resp.json here!
         abort(_resp.status_code)

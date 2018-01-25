@@ -11,13 +11,15 @@ from flask import (
     jsonify,
     request,
     abort,
+    redirect,
+    session,
     current_app as app
 )
 
 from flask_login import current_user, logout_user
 
 from wownder import db
-from wownder.bnlogin import requires_bn_login_api
+from wownder.bnlogin import requires_bn_login_api, us_login_url, eu_login_url
 from wownder.views.schemas.profile import ProfileSchema
 from wownder.models import User, Profile, Char, PvPCharStats, ChatRoom, ChatMessage
 
@@ -58,6 +60,18 @@ def set_headers(_response):
         _response.headers[k] = v
     _response.status_code = _status_code
     return _response
+
+
+@api.route('/login/us')
+def login_us():
+    session['login_region'] = 'US'
+    return redirect(us_login_url())
+
+
+@api.route('/login/eu')
+def login_eu():
+    session['login_region'] = 'EU'
+    return redirect(eu_login_url())
 
 
 @api.route('/logout')
