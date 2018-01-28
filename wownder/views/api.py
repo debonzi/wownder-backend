@@ -66,9 +66,9 @@ def logout():
     return jsonify({})
 
 
-@api.route("/stats")
+@api.route("/{region}/stats")
 @requires_bn_login_api
-def get_stats():
+def get_stats(region):
     """
     This is just to help keep track of users on live server during the initial tests.
     Should be removed after people really start using it.

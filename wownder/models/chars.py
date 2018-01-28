@@ -24,6 +24,7 @@ class Char(db.Model):
     level = db.Column(db.SmallInteger)
     thumbnail = db.Column(db.String(255))
     last_bn_update = db.Column(db.DateTime)
+    region = db.Column(db.String(2), nullable=False, index=True, default='us')
     updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow,
                            onupdate=datetime.datetime.utcnow, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow,
