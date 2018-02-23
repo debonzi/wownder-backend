@@ -73,7 +73,9 @@ def handle_callback():
         abort(_resp.status_code)
     _json = _resp.json()
     oauth_token = _json['access_token']
-    user = update_chars(update_user(oauth_token))
+    user = update_user(oauth_token)
+    update_chars(user, 'us')
+    update_chars(user, 'eu')
     db.session.add(user)
     db.session.commit()
     login_user(user)

@@ -18,17 +18,17 @@ def remove_char(char):
     db.session.delete(char)
 
 
-def update_chars(user):
-    _chars = get_user_chars(user.oauth_token)
+def update_chars(user, region):
+    _chars = get_user_chars(user.oauth_token, region)
     for char in _chars['characters']:
-        user.chars.append(Char.create_or_update(char, enforce_user_id=user.id))
+        user.chars.append(Char.create_or_update(char, region, enforce_user_id=user.id))
 
     # Check if all chars still exists on BN
-    for _c in user.chars:
-        remove = []
+    remove = []
+    for _c in user.chars.filter_by(region=region):
         found = False
         for char_info in _chars['characters']:
-            if char_info['name'] == _c.name and char_info['realm'] == _c.realm:
+            if all([char_info['name'] == _c.name, char_info['realm'] == _c.realm, _c.region == region]):
                 found = True
         if not found:
             remove.append(_c)

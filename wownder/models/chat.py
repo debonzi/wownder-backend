@@ -52,6 +52,6 @@ class ChatMessage(db.Model):
     message = db.Column(db.Text)
     read = db.Column(db.Boolean, default=False, index=True)
 
-    sender = db.relationship("Char", uselist=False,foreign_keys=[sender_id])
-    recipient = db.relationship("Char", uselist=False,foreign_keys=[recipient_id])
+    sender = db.relationship("Char", uselist=False, foreign_keys=[sender_id])
+    recipient = db.relationship("Char", uselist=False, foreign_keys=[recipient_id])
     room = db.relationship("ChatRoom", back_populates="messages", uselist=False)

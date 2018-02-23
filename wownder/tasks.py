@@ -26,7 +26,7 @@ def update_char(char_uuid):
     if not char:
         return
     try:
-        _char = bnapi.get_char_pvp_stats(app.config['BN_CLIENT_ID'], char.realm, char.name)
+        _char = bnapi.get_char_pvp_stats(app.config['BN_CLIENT_ID'], char.region, char.realm, char.name)
     except Exception as e:
         if isinstance(e, NotFound):
             # app.logger.info('Char %s-%s not found on Battlenet' % (char.name, char.realm))

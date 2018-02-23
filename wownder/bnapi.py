@@ -14,14 +14,14 @@ def get_user_info(token):
     return get_request(_url)
 
 
-def get_user_chars(token):
-    _url = 'https://us.api.battle.net/wow/user/characters?access_token={}'.format(token)
+def get_user_chars(token, region):
+    _url = 'https://{}.api.battle.net/wow/user/characters?access_token={}'.format(region, token)
     return get_request(_url)
 
 
-def _get_char(apikey, realm, name, fields=None):
-    _url = ('https://us.api.battle.net/wow/character/%s/%s?locale=en_US&apikey=%s'
-            % (realm, name, apikey))
+def _get_char(apikey, region, realm, name, fields=None):
+    _url = ('https://%s.api.battle.net/wow/character/%s/%s?locale=en_US&apikey=%s'
+            % (region, realm, name, apikey))
     if fields:
         _fields = '&fields='
         for f in fields:
@@ -30,17 +30,17 @@ def _get_char(apikey, realm, name, fields=None):
     return get_request(_url)
 
 
-def get_char(apikey, realm, name):
-    return _get_char(apikey, realm, name)
+def get_char(apikey, region, realm, name):
+    return _get_char(apikey, region, realm, name)
 
 
-def get_char_pvp(apikey, realm, name):
-    return _get_char(apikey, realm, name, ('pvp',))
+def get_char_pvp(apikey, region, realm, name):
+    return _get_char(apikey, region, realm, name, ('pvp',))
 
 
-def get_char_stats(apikey, realm, name):
-    return _get_char(apikey, realm, name, ('statistics',))
+def get_char_stats(apikey, region, realm, name):
+    return _get_char(apikey, region, realm, name, ('statistics',))
 
 
-def get_char_pvp_stats(apikey, realm, name):
-    return _get_char(apikey, realm, name, ('pvp', 'statistics'))
+def get_char_pvp_stats(apikey, region, realm, name):
+    return _get_char(apikey, region, realm, name, ('pvp', 'statistics'))

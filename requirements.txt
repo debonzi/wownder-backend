@@ -13,3 +13,5 @@ dateutils==0.6.6
 requests==2.18.4
 six==1.11.0
 gunicorn==19.7.1
+
+raven[flask]==6.5.0

@@ -2,10 +2,12 @@
 import os
 import celery
 
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, jsonify
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
+from raven.contrib.flask import Sentry
 
 from werkzeug.exceptions import NotFound, Forbidden, default_exceptions
 
@@ -17,6 +19,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
 celery_app = celery.Celery()
+sentry = Sentry()
 
 
 def create_app(config_var=os.getenv('DEPLOY_ENV', 'Development')):
@@ -24,6 +27,7 @@ def create_app(config_var=os.getenv('DEPLOY_ENV', 'Development')):
 
     app.config.from_object('wownder.config.%s.Config' % config_var.lower())
 
+    sentry.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)

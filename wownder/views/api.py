@@ -66,9 +66,9 @@ def logout():
     return jsonify({})
 
 
-@api.route("/{region}/stats")
+@api.route("/stats")
 @requires_bn_login_api
-def get_stats(region):
+def get_stats():
     """
     This is just to help keep track of users on live server during the initial tests.
     Should be removed after people really start using it.
@@ -88,14 +88,18 @@ def is_logged_in():
 @api.route("/chars")
 @requires_bn_login_api
 def api_get_chars():
-    return jsonify([dict(c) for c in current_user.chars.order_by(Char.name)])
+    region = request.args.get('region')
+    chars = current_user.chars.filter_by(region=region) if region else current_user.chars
+    return jsonify([dict(c) for c in chars.order_by(Char.name)])
 
 
 @api.route("/chars/message-stats")
 @requires_bn_login_api
 def api_get_chars_message_stats():
+    region = request.args.get('region')
+    query = current_user.chars.filter_by(region=region) if region else current_user.chars
     chars = []
-    for c in current_user.chars.order_by(Char.name):
+    for c in query.order_by(Char.name):
         rooms_count = ChatRoom.query.filter(
             or_(ChatRoom.char_1_id == c.id, ChatRoom.char_2_id == c.id)
         ).count()
@@ -149,9 +153,10 @@ def find_matches(uuid):
 
     matches = Profile.query.filter(
         Profile.char_id != char.id,
+        # Char.user_id != current_user.id,
+        Profile.char_id == Char.id,
         Profile.faction == char.profile.faction,
-        Char.user_id != current_user.id,
-        Profile.char_id == Char.id
+        Char.region == char.region
     )
 
     if request.args.get('arena') == '3s':

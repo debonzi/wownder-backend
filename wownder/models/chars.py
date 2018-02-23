@@ -29,7 +29,7 @@ class Char(db.Model):
                            onupdate=datetime.datetime.utcnow, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow,
                            nullable=False)
-    __table_args__ = (db.Index('char_ix', name, realm, unique=True),)
+    __table_args__ = (db.Index('char_name_realm_region_un', name, realm, region, unique=True),)
 
     stats = relationship("PvPCharStats", backref='char', uselist=False)
     profile = relationship("Profile", uselist=False, back_populates="char")
@@ -52,11 +52,12 @@ class Char(db.Model):
         return cls.query.filter_by(uuid=uuid).first()
 
     @classmethod
-    def create_or_update(cls, char_info, enforce_user_id=None):
+    def create_or_update(cls, char_info, region, enforce_user_id=None):
         _char = cls.query.filter_by(name=char_info['name'],
-                                    realm=char_info['realm']).first()
+                                    realm=char_info['realm'],
+                                    region=region).first()
 
-        if enforce_user_id and _char and _char.user_id and _char.user_id != enforce_user_id:
+        if enforce_user_id and _char and _char.user_id != enforce_user_id:
             # The char exists under someones else User.
             # Probably DELETED from an account and created under another account
             from wownder.actions import remove_char
@@ -72,7 +73,8 @@ class Char(db.Model):
                        level=char_info['level'],
                        thumbnail=char_info['thumbnail'],
                        last_bn_update=datetime.datetime.fromtimestamp(char_info['lastModified']/1000),
-                       uuid=uuid.uuid4().hex
+                       uuid=uuid.uuid4().hex,
+                       region=region
                        )
         _char.level = char_info['level']
         _char.thumbnail = char_info['thumbnail']
@@ -179,6 +181,7 @@ class Char(db.Model):
         yield "profile_url", self.profile_url
         yield "thumbnail_url", self.thumbnail_url
         yield "race", enums.RACE[self.race]
+        yield "region", self.region
 
 
 class PvPCharStats(db.Model):
