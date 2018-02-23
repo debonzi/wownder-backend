@@ -153,7 +153,7 @@ def find_matches(uuid):
 
     matches = Profile.query.filter(
         Profile.char_id != char.id,
-        # Char.user_id != current_user.id,
+        Char.user_id != current_user.id,
         Profile.char_id == Char.id,
         Profile.faction == char.profile.faction,
         Char.region == char.region
